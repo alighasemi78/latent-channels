@@ -28,12 +28,16 @@ o, a = attention(q, K, V)
 
 # Decompose output energy by channels
 energies = []
+leaks = []
 for j in range(C):
     P = Ps[j]
     oj = P @ o
     energies.append(float(oj.norm() ** 2))
+    leak = (torch.eye(d) - P) @ oj
+    leaks.append(float(leak.norm() ** 2 / oj.norm() ** 2))
 
 print("channel energies:", energies)
 print("total energy:", float(o.norm() ** 2))
 print("fraction in ch0:", energies[0] / (sum(energies) + 1e-8))
 print("fraction in ch1:", energies[1] / (sum(energies) + 1e-8))
+print("leakages:", leaks)
